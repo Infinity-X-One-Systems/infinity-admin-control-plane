@@ -190,7 +190,7 @@ code singularity.code-workspace
 - Org secret `GH_ORG_READ_TOKEN` used by Actions (never exposed to the browser)
 - GHAS, secret scanning, CodeQL, and Dependabot active on this repo
 - Branch protection on `main` with required reviews
-- Contact: **infot@infinityxonesystems.com**
+- Contact: **info@infinityxonesystems.com**
 
 ---
 
