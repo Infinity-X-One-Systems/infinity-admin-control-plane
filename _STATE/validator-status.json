@@ -1,0 +1,50 @@
+{
+  "org": "Infinity-X-One-Systems",
+  "syncedAt": "2026-02-21T08:38:36.337377Z",
+  "health": "critical",
+  "failCount": 1,
+  "warnCount": 2,
+  "repos": [
+    "infinity-admin-control-plane",
+    "infinity-orchestrator",
+    "infinity-core-memory",
+    "doc-evolution-system",
+    "infinity-experiments",
+    "infinity-governance",
+    "infinity-invention-machine-v1",
+    "infinity-instructions",
+    "infinity-index"
+  ],
+  "checks": {
+    "token": {
+      "label": "GitHub PAT",
+      "status": "fail",
+      "value": "HTTP 403"
+    },
+    "org": {
+      "label": "Org Access",
+      "status": "pass",
+      "value": "Infinity-X-One-Systems"
+    },
+    "open_prs": {
+      "label": "Open PRs (est.)",
+      "status": "warn",
+      "value": "11"
+    },
+    "branch_protection": {
+      "label": "Branch Protection (main)",
+      "status": "warn",
+      "value": "HTTP 403"
+    },
+    "secret_scanning": {
+      "label": "Secret Scan Alerts",
+      "status": "pass",
+      "value": "N/A"
+    },
+    "codeowners": {
+      "label": "CODEOWNERS",
+      "status": "pass",
+      "value": "Present"
+    }
+  }
+}
