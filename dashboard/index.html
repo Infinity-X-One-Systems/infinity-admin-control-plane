@@ -110,6 +110,11 @@
 
       <div class="nav-section">
         <div class="nav-section-label">System</div>
+        <div class="nav-item" data-section="gateway" role="button" tabindex="0">
+          <svg class="nav-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M14 1a1 1 0 0 1 1 1v4a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h12zM2 0a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2zm.5 3a.5.5 0 0 0 0 1h3a.5.5 0 0 0 0-1h-3zm0 2a.5.5 0 0 0 0 1h3a.5.5 0 0 0 0-1h-3zM14 9a1 1 0 0 1 1 1v4a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1v-4a1 1 0 0 1 1-1h12zM2 8a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-4a2 2 0 0 0-2-2H2zm.5 3a.5.5 0 0 0 0 1h3a.5.5 0 0 0 0-1h-3zm0 2a.5.5 0 0 0 0 1h3a.5.5 0 0 0 0-1h-3zm8-5a.5.5 0 0 1 .5.5v1h1a.5.5 0 0 1 0 1h-1v1a.5.5 0 0 1-1 0v-1h-1a.5.5 0 0 1 0-1h1v-1a.5.5 0 0 1 .5-.5zm0 7a.5.5 0 1 1 0-1 .5.5 0 0 1 0 1zm2 0a.5.5 0 1 1 0-1 .5.5 0 0 1 0 1z"/></svg>
+          Gateway
+          <span class="status-dot" id="gateway-nav-dot" style="width:6px;height:6px;margin-left:auto;flex-shrink:0"></span>
+        </div>
         <div class="nav-item" data-section="settings" role="button" tabindex="0">
           <svg class="nav-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M9.405 1.05c-.413-1.4-2.397-1.4-2.81 0l-.1.34a1.464 1.464 0 0 1-2.105.872l-.31-.17c-1.283-.698-2.686.705-1.987 1.987l.169.311c.446.82.023 1.841-.872 2.105l-.34.1c-1.4.413-1.4 2.397 0 2.81l.34.1a1.464 1.464 0 0 1 .872 2.105l-.17.31c-.698 1.283.705 2.686 1.987 1.987l.311-.169a1.464 1.464 0 0 1 2.105.872l.1.34c.413 1.4 2.397 1.4 2.81 0l.1-.34a1.464 1.464 0 0 1 2.105-.872l.31.17c1.283.698 2.686-.705 1.987-1.987l-.169-.311a1.464 1.464 0 0 1 .872-2.105l.34-.1c1.4-.413 1.4-2.397 0-2.81l-.34-.1a1.464 1.464 0 0 1-.872-2.105l.17-.31c.698-1.283-.705-2.686-1.987-1.987l-.311.169a1.464 1.464 0 0 1-2.105-.872l-.1-.34zM8 10.93a2.929 2.929 0 1 1 0-5.858 2.929 2.929 0 0 1 0 5.858z"/></svg>
           Settings
@@ -507,15 +512,58 @@
         <div class="card">
           <div class="card-header">
             <div class="card-title"><span class="card-icon">🌐</span> Endpoint Status</div>
+            <button class="btn btn-sm" onclick="IACP.navigate('gateway')">Full Gateway View →</button>
           </div>
-          <div class="deeplink-grid">
-            <div class="deeplink-card" onclick="IACP.showToast('vizual-x.com — Cloudflare tunnel pending full configuration','warning')">
-              <div class="deeplink-icon">☁️</div>
-              <div><div class="deeplink-label">vizual-x.com</div><div class="deeplink-desc">Cloudflare tunnel — partial</div></div>
+          <div id="vault-endpoint-status">
+            <div id="vault-endpoint-grid" class="deeplink-grid"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── GATEWAY ────────────────────────────────────────── -->
+      <section class="page-section" id="section-gateway" aria-label="Gateway">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Gateway &amp; Tunnel</div>
+            <div class="page-subtitle">Cloudflare tunnel endpoints and AI gateway reachability</div>
+          </div>
+          <div class="page-actions">
+            <button class="btn btn-primary" onclick="IACP.probeAllEndpoints()">↻ Probe All</button>
+          </div>
+        </div>
+
+        <div class="card mb-4">
+          <div class="card-header">
+            <div class="card-title"><span class="card-icon">☁️</span> Cloudflare Tunnel Endpoints</div>
+          </div>
+          <div id="gateway-cf-grid" class="deeplink-grid"></div>
+        </div>
+
+        <div class="card mb-4">
+          <div class="card-header">
+            <div class="card-title"><span class="card-icon">🤖</span> AI Gateway Endpoints</div>
+          </div>
+          <div id="gateway-ai-grid" class="deeplink-grid"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title"><span class="card-icon">➕</span> Add Custom Endpoint</div>
+          </div>
+          <div style="padding:0 16px 16px">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="gateway-new-label">Label</label>
+                <input id="gateway-new-label" type="text" class="form-input" placeholder="My Service" />
+              </div>
+              <div class="form-group">
+                <label for="gateway-new-url">URL</label>
+                <input id="gateway-new-url" type="url" class="form-input" placeholder="https://…" />
+              </div>
             </div>
-            <div class="deeplink-card" onclick="IACP.showToast('infinityxai.com — Infinity Orchestrator active','success')">
-              <div class="deeplink-icon">🤖</div>
-              <div><div class="deeplink-label">infinityxai.com</div><div class="deeplink-desc">Infinity Orchestrator App</div></div>
+            <div style="display:flex;gap:8px;margin-top:4px">
+              <button class="btn btn-primary" onclick="IACP.addGatewayEndpoint()">Add &amp; Probe</button>
+              <button class="btn" onclick="IACP.clearCustomEndpoints()">Clear Custom</button>
             </div>
           </div>
         </div>
@@ -597,6 +645,27 @@
                 <div><div class="deeplink-label">Clone: infinity-core-memory</div><div class="deeplink-desc">Open in VS Code</div></div>
               </a>
             </div>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <div class="settings-section-header">☁️ Cloudflare Tunnel</div>
+          <div class="settings-section-body">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="settings-cf-tunnel-url">Tunnel URL (vizual-x.com)</label>
+                <input id="settings-cf-tunnel-url" type="url" class="form-input" placeholder="https://vizual-x.com" />
+              </div>
+              <div class="form-group">
+                <label for="settings-cf-gateway-url">Gateway URL (infinityxai.com)</label>
+                <input id="settings-cf-gateway-url" type="url" class="form-input" placeholder="https://infinityxai.com" />
+              </div>
+            </div>
+            <div style="display:flex;gap:8px;margin-top:4px">
+              <button id="settings-tunnel-save-btn" class="btn btn-primary">Save Tunnel Config</button>
+              <button class="btn" onclick="IACP.navigate('gateway')">Open Gateway Panel →</button>
+            </div>
+            <div class="hint">Tunnel URLs are stored in localStorage. Used by the Gateway panel for live reachability checks.</div>
           </div>
         </div>
 

@@ -45,7 +45,7 @@ function applyTheme(theme) {
 const SECTIONS = [
   'overview','projects','discovery','sandbox',
   'validation','industry','memory','vault',
-  'editor','roadmap','settings',
+  'editor','roadmap','gateway','settings',
 ];
 
 function navigate(section) {
@@ -75,7 +75,7 @@ function sectionLabel(s) {
   return { overview:'Overview', projects:'Projects', discovery:'Discovery',
            sandbox:'Sandbox', validation:'Validation', industry:'Industry',
            memory:'Memory', vault:'Vault', editor:'Editor',
-           roadmap:'Roadmap', settings:'Settings' }[s] || s;
+           roadmap:'Roadmap', gateway:'Gateway & Tunnel', settings:'Settings' }[s] || s;
 }
 
 /* ============================================================
@@ -93,6 +93,7 @@ async function loadSection(section) {
     case 'vault':       return loadVault();
     case 'editor':      return loadEditor();
     case 'roadmap':     return loadRoadmap();
+    case 'gateway':     return loadGateway();
     case 'settings':    return renderSettings();
   }
 }
@@ -520,6 +521,21 @@ async function loadVault() {
         </div>
       </div>
     </div>`).join('');
+
+  // Probe CF tunnel endpoints and populate vault endpoint grid
+  const cfEndpoints = CF_ENDPOINTS.map(ep => {
+    const savedCfUrl = localStorage.getItem(GW_KEY_CF_URL);
+    const savedGwUrl = localStorage.getItem(GW_KEY_CF_GW);
+    if (ep.id === 'vizual-x'    && savedCfUrl) return { ...ep, url: savedCfUrl };
+    if (ep.id === 'infinityxai' && savedGwUrl) return { ...ep, url: savedGwUrl };
+    return ep;
+  });
+  const vaultGrid = document.getElementById('vault-endpoint-grid');
+  if (vaultGrid) {
+    vaultGrid.innerHTML = cfEndpoints.map(ep => endpointCardHtml(ep, 'checking')).join('');
+    const statuses = await Promise.all(cfEndpoints.map(ep => probeEndpoint(ep.url)));
+    vaultGrid.innerHTML = cfEndpoints.map((ep, i) => endpointCardHtml(ep, statuses[i])).join('');
+  }
 }
 
 /* ============================================================
@@ -600,6 +616,148 @@ repos_to_sync:
 `;
 
 /* ============================================================
+   GATEWAY & TUNNEL
+   ============================================================ */
+const GW_KEY_CUSTOM   = 'iacp_gw_custom';
+const GW_KEY_CF_URL   = 'iacp_gw_cf_tunnel_url';
+const GW_KEY_CF_GW    = 'iacp_gw_cf_gateway_url';
+
+// Built-in endpoints (Cloudflare tunnel + AI gateway)
+const CF_ENDPOINTS = [
+  { id: 'vizual-x',      label: 'vizual-x.com',     url: 'https://vizual-x.com',     icon: '☁️', group: 'cf' },
+  { id: 'infinityxai',   label: 'infinityxai.com',   url: 'https://infinityxai.com',  icon: '🤖', group: 'ai' },
+];
+const AI_ENDPOINTS = [
+  { id: 'ollama-local',  label: 'Ollama (local)',    url: 'http://localhost:11434',   icon: '🦙', group: 'ai' },
+  { id: 'groq-api',      label: 'Groq API',          url: 'https://api.groq.com',     icon: '⚡', group: 'ai' },
+  { id: 'gemini-api',    label: 'Gemini API',        url: 'https://generativelanguage.googleapis.com', icon: '🔮', group: 'ai' },
+];
+
+/**
+ * Probe a single endpoint using a no-cors HEAD request with a 5 s timeout.
+ * Returns 'online' | 'offline' | 'unknown'.
+ * Opaque (no-cors) responses count as online — the server replied.
+ */
+async function probeEndpoint(url) {
+  const controller = new AbortController();
+  const tid = setTimeout(() => controller.abort(), 5000);
+  try {
+    await fetch(url, { method: 'HEAD', mode: 'no-cors', signal: controller.signal });
+    return 'online';
+  } catch (e) {
+    if (e.name === 'AbortError') return 'offline';
+    return 'offline';
+  } finally {
+    clearTimeout(tid);
+  }
+}
+
+function endpointCardHtml(ep, status) {
+  const dotCls = status === 'online' ? 'online' : status === 'offline' ? 'offline' : 'warning';
+  const statusText = status === 'online' ? 'Online' : status === 'offline' ? 'Offline' : 'Checking…';
+  return `
+    <div class="deeplink-card" style="cursor:default">
+      <div class="deeplink-icon">${ep.icon}</div>
+      <div style="flex:1;min-width:0">
+        <div class="deeplink-label">${ep.label}</div>
+        <div class="deeplink-desc" style="display:flex;align-items:center;gap:5px">
+          <span class="status-dot ${dotCls}" style="width:6px;height:6px;flex-shrink:0"></span>
+          ${statusText}
+        </div>
+      </div>
+      <a href="${ep.url}" target="_blank" class="btn btn-xs" style="flex-shrink:0">Open ↗</a>
+    </div>`;
+}
+
+async function loadGateway() {
+  const cfEl = document.getElementById('gateway-cf-grid');
+  const aiEl = document.getElementById('gateway-ai-grid');
+  if (!cfEl || !aiEl) return;
+
+  // Merge built-in CF endpoints with saved custom CF tunnel URL from settings
+  const savedCfUrl = localStorage.getItem(GW_KEY_CF_URL);
+  const savedGwUrl = localStorage.getItem(GW_KEY_CF_GW);
+  const cfEndpoints = CF_ENDPOINTS.map(ep => {
+    if (ep.id === 'vizual-x'    && savedCfUrl) return { ...ep, url: savedCfUrl };
+    if (ep.id === 'infinityxai' && savedGwUrl) return { ...ep, url: savedGwUrl };
+    return ep;
+  });
+
+  // Custom user-added endpoints
+  let custom = [];
+  try { custom = JSON.parse(localStorage.getItem(GW_KEY_CUSTOM) || '[]'); } catch { custom = []; }
+
+  // Render skeleton while probing
+  const allCf = cfEndpoints;
+  const allAi = [...AI_ENDPOINTS, ...custom.filter(c => c.group !== 'cf')];
+  const cfCustom = custom.filter(c => c.group === 'cf');
+
+  cfEl.innerHTML = [...allCf, ...cfCustom].map(ep => endpointCardHtml(ep, 'checking')).join('');
+  aiEl.innerHTML = allAi.map(ep => endpointCardHtml(ep, 'checking')).join('');
+
+  // Probe all concurrently
+  const allEndpoints = [...allCf, ...cfCustom, ...allAi];
+  const results = await Promise.all(allEndpoints.map(ep => probeEndpoint(ep.url)));
+
+  // Re-render with real statuses
+  const statusMap = {};
+  allEndpoints.forEach((ep, i) => { statusMap[ep.id] = results[i]; });
+
+  cfEl.innerHTML = [...allCf, ...cfCustom].map(ep => endpointCardHtml(ep, statusMap[ep.id] || 'offline')).join('');
+  aiEl.innerHTML = allAi.map(ep => endpointCardHtml(ep, statusMap[ep.id] || 'offline')).join('');
+
+  // Update sidebar nav dot based on CF tunnel status
+  const navDot = document.getElementById('gateway-nav-dot');
+  const cfOnline = [...allCf, ...cfCustom].some(ep => statusMap[ep.id] === 'online');
+  if (navDot) navDot.className = `status-dot ${cfOnline ? 'online' : 'warning'}`;
+
+  // Update vault endpoint grid (for the vault section)
+  renderVaultEndpoints([...allCf, ...cfCustom].map((ep, i) => ({ ep, status: statusMap[ep.id] || 'offline' })));
+}
+
+function renderVaultEndpoints(items) {
+  const el = document.getElementById('vault-endpoint-grid');
+  if (!el) return;
+  el.innerHTML = items.length
+    ? items.map(({ ep, status }) => endpointCardHtml(ep, status)).join('')
+    : `<div style="padding:12px;font-size:12px;color:var(--text-muted)">Run probe from Gateway panel.</div>`;
+}
+
+function addGatewayEndpoint() {
+  const labelEl = document.getElementById('gateway-new-label');
+  const urlEl   = document.getElementById('gateway-new-url');
+  const label = labelEl?.value.trim();
+  const url   = urlEl?.value.trim();
+  if (!label || !url) { showToast('Enter both a label and a URL', 'error'); return; }
+  try { new URL(url); } catch { showToast('Invalid URL — must start with http:// or https://', 'error'); return; }
+
+  let custom = [];
+  try { custom = JSON.parse(localStorage.getItem(GW_KEY_CUSTOM) || '[]'); } catch { custom = []; }
+  const id = `custom-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  custom.push({ id, label, url, icon: '🔗', group: 'cf' });
+  localStorage.setItem(GW_KEY_CUSTOM, JSON.stringify(custom));
+
+  if (labelEl) labelEl.value = '';
+  if (urlEl)   urlEl.value   = '';
+  showToast(`Added ${label} — probing…`, 'info');
+  loadGateway();
+}
+
+function clearCustomEndpoints() {
+  localStorage.removeItem(GW_KEY_CUSTOM);
+  showToast('Custom endpoints cleared', 'info');
+  loadGateway();
+}
+
+function saveTunnelConfig() {
+  const cfUrl = document.getElementById('settings-cf-tunnel-url')?.value.trim();
+  const gwUrl = document.getElementById('settings-cf-gateway-url')?.value.trim();
+  if (cfUrl) localStorage.setItem(GW_KEY_CF_URL, cfUrl);
+  if (gwUrl) localStorage.setItem(GW_KEY_CF_GW, gwUrl);
+  showToast('Tunnel config saved', 'success');
+}
+
+/* ============================================================
    ROADMAP
    ============================================================ */
 function loadRoadmap() {
@@ -650,7 +808,7 @@ function loadRoadmap() {
     {
       id: 'p5', label: 'Phase 5 — Expansion (Day 5-7)', color: '#d29922',
       items: [
-        { text: 'Cloudflare tunnel status indicator', done: false },
+        { text: 'Cloudflare tunnel status indicator', done: true },
         { text: 'Ollama / Groq / Gemini API status', done: false },
         { text: 'Google Cloud project health check', done: false },
         { text: 'Vertex AI integration entrypoint', done: false },
@@ -693,6 +851,13 @@ function renderSettings() {
 
   document.getElementById('settings-token').value = getToken();
   document.getElementById('settings-org').value   = getOrg();
+
+  const cfUrl = localStorage.getItem(GW_KEY_CF_URL) || '';
+  const gwUrl = localStorage.getItem(GW_KEY_CF_GW)  || '';
+  const cfField = document.getElementById('settings-cf-tunnel-url');
+  const gwField = document.getElementById('settings-cf-gateway-url');
+  if (cfField) cfField.value = cfUrl;
+  if (gwField) gwField.value = gwUrl;
 }
 
 async function handleSettingsSave() {
@@ -906,6 +1071,7 @@ async function init() {
   // Settings save
   document.getElementById('settings-save-btn')?.addEventListener('click', handleSettingsSave);
   document.getElementById('settings-sync-btn')?.addEventListener('click', handleSyncNow);
+  document.getElementById('settings-tunnel-save-btn')?.addEventListener('click', saveTunnelConfig);
 
   // Hash navigation
   window.addEventListener('hashchange', () => {
@@ -940,4 +1106,4 @@ if (document.readyState === 'loading') {
 }
 
 // Export for inline event handlers
-window.IACP = { navigate, showToast, renderRepoGraph };
+window.IACP = { navigate, showToast, renderRepoGraph, probeAllEndpoints: loadGateway, addGatewayEndpoint, clearCustomEndpoints };
