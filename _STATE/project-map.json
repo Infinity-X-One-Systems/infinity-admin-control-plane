@@ -1,0 +1,121 @@
+{
+  "org": "Infinity-X-One-Systems",
+  "syncedAt": "2026-02-21T00:00:00Z",
+  "projects": [
+    {
+      "id": "PVT_placeholder",
+      "title": "Infinity Master State Engine",
+      "number": 1,
+      "url": "https://github.com/orgs/Infinity-X-One-Systems/projects/1"
+    }
+  ],
+  "columns": [
+    {
+      "id": "NEW_IDEA",
+      "label": "NEW IDEA",
+      "color": "#8b949e",
+      "items": []
+    },
+    {
+      "id": "DISCOVERY",
+      "label": "DISCOVERY",
+      "color": "#58a6ff",
+      "items": [
+        {
+          "id": "item-1",
+          "type": "issue",
+          "title": "Evaluate Groq API integration for inference layer",
+          "repo": "infinity-sandbox",
+          "state": "OPEN",
+          "url": ""
+        },
+        {
+          "id": "item-2",
+          "type": "issue",
+          "title": "Research Cloudflare Tunnel mesh topology",
+          "repo": "infinity-vision",
+          "state": "OPEN",
+          "url": ""
+        }
+      ]
+    },
+    {
+      "id": "EVOLUTION_COMPLETE",
+      "label": "EVOLUTION COMPLETE",
+      "color": "#bc8cff",
+      "items": [
+        {
+          "id": "item-3",
+          "type": "issue",
+          "title": "IACP dashboard architecture finalized",
+          "repo": "infinity-admin-control-plane",
+          "state": "OPEN",
+          "url": ""
+        }
+      ]
+    },
+    {
+      "id": "SANDBOX_BUILD",
+      "label": "SANDBOX BUILD",
+      "color": "#ffa657",
+      "items": [
+        {
+          "id": "item-4",
+          "type": "pull_request",
+          "title": "feat: Add Monaco editor panel to dashboard",
+          "repo": "infinity-admin-control-plane",
+          "state": "OPEN",
+          "url": ""
+        }
+      ]
+    },
+    {
+      "id": "VALIDATION",
+      "label": "VALIDATION",
+      "color": "#d29922",
+      "items": []
+    },
+    {
+      "id": "FIX_LOOP",
+      "label": "FIX LOOP",
+      "color": "#f85149",
+      "items": []
+    },
+    {
+      "id": "DEPLOYMENT_CANDIDATE",
+      "label": "DEPLOYMENT CANDIDATE",
+      "color": "#3fb950",
+      "items": [
+        {
+          "id": "item-5",
+          "type": "pull_request",
+          "title": "Deploy IACP v1.0 to GitHub Pages",
+          "repo": "infinity-admin-control-plane",
+          "state": "OPEN",
+          "url": ""
+        }
+      ]
+    },
+    {
+      "id": "AWAITING_APPROVAL",
+      "label": "AWAITING APPROVAL",
+      "color": "#00b4ff",
+      "items": []
+    },
+    {
+      "id": "RELEASED",
+      "label": "RELEASED",
+      "color": "#1f6feb",
+      "items": [
+        {
+          "id": "item-6",
+          "type": "issue",
+          "title": "Initial repo structure and .gitignore",
+          "repo": "infinity-admin-control-plane",
+          "state": "CLOSED",
+          "url": ""
+        }
+      ]
+    }
+  ]
+}

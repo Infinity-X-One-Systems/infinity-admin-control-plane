@@ -1,0 +1,110 @@
+{
+  "folders": [
+    {
+      "name": "∞ Admin Control Plane",
+      "path": "."
+    },
+    {
+      "name": "∞ Core",
+      "path": "../infinity-core"
+    },
+    {
+      "name": "∞ Core Memory",
+      "path": "../infinity-core-memory"
+    },
+    {
+      "name": "∞ Vision",
+      "path": "../infinity-vision"
+    },
+    {
+      "name": "∞ Tools",
+      "path": "../infinity-tools"
+    },
+    {
+      "name": "∞ Sandbox",
+      "path": "../infinity-sandbox"
+    },
+    {
+      "name": "∞ Experiment",
+      "path": "../infinity-experiment"
+    },
+    {
+      "name": "∞ GitOps Template",
+      "path": "../infinity-template-infinity-gitops"
+    },
+    {
+      "name": "∞ SINGULARITY_PRIME",
+      "path": "C:\\AI\\SINGULARITY_PRIME"
+    }
+  ],
+  "_comment_singularity_path": "The SINGULARITY_PRIME path above is Windows-specific (C:\\AI\\SINGULARITY_PRIME). Update it to your local path if you are on macOS/Linux (e.g. ~/AI/SINGULARITY_PRIME).",
+  "settings": {
+    "editor.formatOnSave": true,
+    "editor.tabSize": 2,
+    "editor.insertSpaces": true,
+    "files.trimTrailingWhitespace": true,
+    "files.insertFinalNewline": true,
+    "terminal.integrated.defaultProfile.windows": "PowerShell",
+    "github.copilot.enable": {
+      "*": true
+    },
+    "files.exclude": {
+      "**/.git": true,
+      "**/node_modules": true,
+      "**/__pycache__": true,
+      "**/*.pyc": true
+    }
+  },
+  "extensions": {
+    "recommendations": [
+      "github.copilot",
+      "github.copilot-chat",
+      "github.vscode-github-actions",
+      "github.vscode-pull-request-github",
+      "ms-azuretools.vscode-docker",
+      "ms-python.python",
+      "dbaeumer.vscode-eslint",
+      "esbenp.prettier-vscode",
+      "redhat.vscode-yaml",
+      "ms-vscode.vscode-typescript-next"
+    ]
+  },
+  "launch": {
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "name": "IACP Dashboard (Live Server)",
+        "type": "chrome",
+        "request": "launch",
+        "url": "http://localhost:5500/dashboard/",
+        "webRoot": "${workspaceFolder}",
+        "sourceMaps": true
+      }
+    ]
+  },
+  "tasks": {
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "label": "Serve Dashboard (Python)",
+        "type": "shell",
+        "command": "python3 -m http.server 5500",
+        "options": { "cwd": "${workspaceFolder}" },
+        "group": "build",
+        "presentation": { "reveal": "always", "panel": "new" }
+      },
+      {
+        "label": "Trigger Org Index Sync",
+        "type": "shell",
+        "command": "gh workflow run sync-org-index.yml",
+        "group": "build"
+      },
+      {
+        "label": "Trigger Memory Sync",
+        "type": "shell",
+        "command": "gh workflow run memory-sync.yml",
+        "group": "build"
+      }
+    ]
+  }
+}

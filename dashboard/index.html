@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="description" content="Infinity Admin Control Plane — Sovereign command dashboard for the Infinity Invention Machine" />
+  <meta name="theme-color" content="#0b0f14" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+  <title>Infinity Admin Control Plane</title>
+
+  <!-- PWA manifest -->
+  <link rel="manifest" href="../pwa/manifest.json" />
+
+  <!-- Favicon (inline SVG as data URI) -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%2300b4ff'/><text x='6' y='24' font-size='20' font-weight='900' fill='white' font-family='system-ui'>∞</text></svg>" />
+
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="styles/main.css" />
+
+  <style>
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+<!-- ============================================================
+     APP SHELL
+     ============================================================ -->
+<div class="app-shell">
+
+  <!-- Sidebar Overlay (mobile) -->
+  <div class="sidebar-overlay" id="sidebar-overlay" onclick="document.getElementById('sidebar').classList.remove('open');this.classList.remove('visible')"></div>
+
+  <!-- ======================================================
+       SIDEBAR
+       ====================================================== -->
+  <aside class="sidebar" id="sidebar">
+
+    <!-- Logo -->
+    <div class="sidebar-logo">
+      <div class="logo-mark">∞</div>
+      <div class="logo-text">
+        Infinity
+        <span>Admin Control Plane</span>
+      </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="sidebar-nav" role="navigation" aria-label="Main navigation">
+
+      <div class="nav-section">
+        <div class="nav-section-label">Control</div>
+        <div class="nav-item active" data-section="overview" role="button" tabindex="0">
+          <svg class="nav-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M2 2h5v5H2V2zm0 7h5v5H2V9zm7-7h5v5H9V2zm0 7h5v5H9V9z"/></svg>
+          Overview
+        </div>
+        <div class="nav-item" data-section="projects" role="button" tabindex="0">
+          <svg class="nav-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M1.5 3.5A1.5 1.5 0 0 1 3 2h9.5A1.5 1.5 0 0 1 14 3.5v9A1.5 1.5 0 0 1 12.5 14H3A1.5 1.5 0 0 1 1.5 12.5v-9zM3 3.5v9h9.5v-9H3z"/><path d="M4 6h8v1H4V6zm0 3h8v1H4V9zm0 3h5v1H4v-1z"/></svg>
+          Projects
+          <span class="nav-badge info" id="projects-count">—</span>
+        </div>
+        <div class="nav-item" data-section="roadmap" role="button" tabindex="0">
+          <svg class="nav-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M7.5 1a.5.5 0 0 1 .5.5v.5h1V1.5a.5.5 0 0 1 1 0V2h.5A2.5 2.5 0 0 1 13 4.5v8A2.5 2.5 0 0 1 10.5 15h-5A2.5 2.5 0 0 1 3 12.5v-8A2.5 2.5 0 0 1 5.5 2H6v-.5a.5.5 0 0 1 .5-.5h1zm-2 2A1.5 1.5 0 0 0 4 4.5v8A1.5 1.5 0 0 0 5.5 14h5a1.5 1.5 0 0 0 1.5-1.5v-8A1.5 1.5 0 0 0 10.5 3h-5zM5 6h6v1H5V6zm0 3h6v1H5V9zm0 3h4v1H5v-1z"/></svg>
+          Roadmap
+        </div>
+      </div>
+
+      <div class="nav-section">
+        <div class="nav-section-label">Pipelines</div>
+        <div class="nav-item" data-section="discovery" role="button" tabindex="0">
+          <svg class="nav-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.099zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/></svg>
+          Discovery
+        </div>
+        <div class="nav-item" data-section="sandbox" role="button" tabindex="0">
+          <svg class="nav-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M14.5 3a.5.5 0 0 1 .5.5v9a.5.5 0 0 1-.5.5H1.5a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h13zm-13-1A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h13a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 14.5 2H1.5z"/><path d="M3 5.5a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5zM3 8a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9A.5.5 0 0 1 3 8zm0 2.5a.5.5 0 0 1 .5-.5h6a.5.5 0 0 1 0 1h-6a.5.5 0 0 1-.5-.5z"/></svg>
+          Sandbox
+        </div>
+        <div class="nav-item" data-section="validation" role="button" tabindex="0">
+          <svg class="nav-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z"/></svg>
+          Validation
+          <span class="nav-badge" id="pr-count">—</span>
+        </div>
+      </div>
+
+      <div class="nav-section">
+        <div class="nav-section-label">Repos</div>
+        <div class="nav-item" data-section="industry" role="button" tabindex="0">
+          <svg class="nav-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M1 2.5A2.5 2.5 0 0 1 3.5 0h8.75a.75.75 0 0 1 .75.75v3h.5A2.5 2.5 0 0 1 16 6.25v8.25a.75.75 0 0 1-.75.75H11a.75.75 0 0 1-.75-.75V12H5.75v2.5a.75.75 0 0 1-.75.75H.75A.75.75 0 0 1 0 14.5V6.25A2.5 2.5 0 0 1 2.5 3.75H3.5V.75A.75.75 0 0 1 4.25 0H3.5A2.5 2.5 0 0 0 1 2.5v.25H.75A.75.75 0 0 0 0 3.5v1A.75.75 0 0 0 .75 5H1v-.5z"/></svg>
+          Industry
+        </div>
+      </div>
+
+      <div class="nav-section">
+        <div class="nav-section-label">Intelligence</div>
+        <div class="nav-item" data-section="memory" role="button" tabindex="0">
+          <svg class="nav-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1zm0 13A6 6 0 1 1 8 2a6 6 0 0 1 0 12z"/><path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3.5A.5.5 0 0 1 7.5 8V4.5A.5.5 0 0 1 8 4z"/></svg>
+          Memory
+        </div>
+        <div class="nav-item" data-section="vault" role="button" tabindex="0">
+          <svg class="nav-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/></svg>
+          Vault
+        </div>
+        <div class="nav-item" data-section="editor" role="button" tabindex="0">
+          <svg class="nav-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h12zm-3.854 5.646a.5.5 0 0 0-.792.583L10.5 8l-1.146 1.771a.5.5 0 1 0 .792.583l1.25-1.93a.5.5 0 0 0 0-.625l-1.25-1.153zM4.146 6.646l-1.25 1.153a.5.5 0 0 0 0 .625l1.25 1.93a.5.5 0 0 0 .792-.583L3.792 8.5 4.938 6.729a.5.5 0 0 0-.792-.083zM7.854 4.854a.5.5 0 0 0-.708-.708l-2 2 2 2a.5.5 0 0 0 .708-.708L6.207 6.5l1.647-1.646z"/></svg>
+          Editor
+        </div>
+      </div>
+
+      <div class="nav-section">
+        <div class="nav-section-label">System</div>
+        <div class="nav-item" data-section="settings" role="button" tabindex="0">
+          <svg class="nav-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M9.405 1.05c-.413-1.4-2.397-1.4-2.81 0l-.1.34a1.464 1.464 0 0 1-2.105.872l-.31-.17c-1.283-.698-2.686.705-1.987 1.987l.169.311c.446.82.023 1.841-.872 2.105l-.34.1c-1.4.413-1.4 2.397 0 2.81l.34.1a1.464 1.464 0 0 1 .872 2.105l-.17.31c-.698 1.283.705 2.686 1.987 1.987l.311-.169a1.464 1.464 0 0 1 2.105.872l.1.34c.413 1.4 2.397 1.4 2.81 0l.1-.34a1.464 1.464 0 0 1 2.105-.872l.31.17c1.283.698 2.686-.705 1.987-1.987l-.169-.311a1.464 1.464 0 0 1 .872-2.105l.34-.1c1.4-.413 1.4-2.397 0-2.81l-.34-.1a1.464 1.464 0 0 1-.872-2.105l.17-.31c.698-1.283-.705-2.686-1.987-1.987l-.311.169a1.464 1.464 0 0 1-2.105-.872l-.1-.34zM8 10.93a2.929 2.929 0 1 1 0-5.858 2.929 2.929 0 0 1 0 5.858z"/></svg>
+          Settings
+        </div>
+      </div>
+
+    </nav>
+
+    <!-- Sidebar footer -->
+    <div class="sidebar-footer">
+      <div class="system-status">
+        <div class="status-dot warning" id="sidebar-system-dot"></div>
+        <div>
+          <div style="font-weight:600;color:var(--text);font-size:11px">System</div>
+          <div id="sidebar-status-text" style="font-size:10px">Configure token</div>
+        </div>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- ======================================================
+       MAIN WRAPPER
+       ====================================================== -->
+  <div class="main-wrapper">
+
+    <!-- Topbar -->
+    <header class="topbar" role="banner">
+      <button class="icon-btn menu-toggle" id="menu-toggle" aria-label="Toggle sidebar" onclick="document.getElementById('sidebar').classList.toggle('open');document.getElementById('sidebar-overlay').classList.toggle('visible')">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path fill-rule="evenodd" d="M2.5 11.5A.5.5 0 0 1 3 11h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4A.5.5 0 0 1 3 7h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4A.5.5 0 0 1 3 3h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z"/></svg>
+      </button>
+
+      <div class="topbar-breadcrumb">
+        <span>IACP</span>
+        <span style="color:var(--text-subtle)">/</span>
+        <span class="crumb-active" id="breadcrumb-active">Overview</span>
+      </div>
+
+      <div class="topbar-search">
+        <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor" style="flex-shrink:0"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.018-.784zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/></svg>
+        <input id="topbar-search-input" type="search" placeholder="Search repos…" autocomplete="off" aria-label="Search repositories" />
+      </div>
+
+      <div class="topbar-actions">
+        <a href="https://github.com/Infinity-X-One-Systems/infinity-admin-control-plane" target="_blank" class="icon-btn" title="View on GitHub" aria-label="View on GitHub">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
+        </a>
+        <button class="icon-btn theme-toggle" id="theme-toggle" title="Toggle theme" aria-label="Toggle color theme">☀️</button>
+        <button class="install-btn hidden" id="install-btn" aria-label="Install as PWA">
+          <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/><path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/></svg>
+          Install
+        </button>
+      </div>
+    </header>
+
+    <!-- ====================================================
+         CONTENT AREA
+         ==================================================== -->
+    <main class="content-area" role="main">
+
+      <!-- ── OVERVIEW ─────────────────────────────────────── -->
+      <section class="page-section active" id="section-overview" aria-label="Overview">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Command Overview</div>
+            <div class="page-subtitle">Real-time snapshot of the Infinity Invention Machine</div>
+          </div>
+          <div class="page-actions">
+            <button class="btn" onclick="IACP.navigate('settings')">⚙ Configure</button>
+            <button class="btn btn-primary" onclick="location.reload()">↻ Refresh</button>
+          </div>
+        </div>
+
+        <!-- KPI Cards -->
+        <div class="kpi-grid" id="kpi-grid">
+          <!-- Populated by app.js -->
+          <div class="kpi-card"><div class="kpi-label">⏳ Loading…</div><div class="kpi-value loading-pulse" style="width:60px;height:28px"></div></div>
+          <div class="kpi-card"><div class="kpi-label">⏳ Loading…</div><div class="kpi-value loading-pulse" style="width:60px;height:28px"></div></div>
+          <div class="kpi-card"><div class="kpi-label">⏳ Loading…</div><div class="kpi-value loading-pulse" style="width:60px;height:28px"></div></div>
+          <div class="kpi-card"><div class="kpi-label">⏳ Loading…</div><div class="kpi-value loading-pulse" style="width:60px;height:28px"></div></div>
+          <div class="kpi-card"><div class="kpi-label">⏳ Loading…</div><div class="kpi-value loading-pulse" style="width:60px;height:28px"></div></div>
+          <div class="kpi-card"><div class="kpi-label">⏳ Loading…</div><div class="kpi-value loading-pulse" style="width:60px;height:28px"></div></div>
+        </div>
+
+        <div class="grid-2-1 mb-6">
+          <!-- Recent Repos -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title"><span class="card-icon">📦</span> Repository Index</div>
+              <a href="#industry" onclick="IACP.navigate('industry')" class="btn btn-sm">View All →</a>
+            </div>
+            <div id="recent-repos">
+              <div class="skeleton-row"><div class="loading-pulse"></div></div>
+              <div class="skeleton-row"><div class="loading-pulse" style="width:80%"></div></div>
+              <div class="skeleton-row"><div class="loading-pulse" style="width:90%"></div></div>
+              <div class="skeleton-row"><div class="loading-pulse" style="width:70%"></div></div>
+            </div>
+          </div>
+
+          <!-- System Status -->
+          <div>
+            <div class="card mb-3">
+              <div class="card-header">
+                <div class="card-title"><span class="card-icon">🛡️</span> System Status</div>
+              </div>
+              <div class="vault-panel" id="system-status-panel" style="grid-template-columns:1fr">
+                <div class="vault-item"><div class="vault-icon">⏳</div><div><div class="vault-item-title">Loading…</div></div></div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title"><span class="card-icon">🌐</span> Webhook Events</div>
+                <span class="badge badge-muted">live</span>
+              </div>
+              <div class="webhook-feed" id="webhook-feed"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Repo Graph -->
+        <div class="card mb-6">
+          <div class="card-header">
+            <div class="card-title"><span class="card-icon">🕸️</span> Org Repo Graph</div>
+            <button class="btn btn-sm" onclick="IACP.renderRepoGraph()">Redraw</button>
+          </div>
+          <svg id="repo-graph-canvas" viewBox="0 0 700 340" preserveAspectRatio="xMidYMid meet" style="width:100%;height:340px;background:var(--panel-alt);border:1px solid var(--border);border-radius:var(--card-radius)">
+            <text x="50%" y="50%" text-anchor="middle" fill="var(--text-muted)" font-size="12" dy=".3em">Sync the org index to populate the graph</text>
+          </svg>
+        </div>
+
+        <!-- Copilot / VS Code Entrypoints -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title"><span class="card-icon">🤖</span> Copilot &amp; Deep Links</div>
+          </div>
+          <div id="copilot-grid" class="deeplink-grid"></div>
+        </div>
+      </section>
+
+      <!-- ── PROJECTS ─────────────────────────────────────── -->
+      <section class="page-section" id="section-projects" aria-label="Projects">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Project State Engine</div>
+            <div class="page-subtitle">Infinity Master State Engine — GitHub Projects V2</div>
+          </div>
+          <div class="page-actions">
+            <a href="https://github.com/orgs/Infinity-X-One-Systems/projects" target="_blank" class="btn btn-primary">Open in GitHub ↗</a>
+          </div>
+        </div>
+
+        <div class="alert alert-info mb-4">
+          <span>ℹ</span>
+          <span>This board mirrors the <strong>Infinity Master State Engine</strong> GitHub Project. State is synced by <code>project-sync.yml</code> and stored in <code>_STATE/project-map.json</code>.</span>
+        </div>
+
+        <div class="kanban-board" id="kanban-board">
+          <div style="padding:32px;text-align:center;color:var(--text-subtle);font-size:12px;width:100%">Loading project state…</div>
+        </div>
+      </section>
+
+      <!-- ── ROADMAP ───────────────────────────────────────── -->
+      <section class="page-section" id="section-roadmap" aria-label="Roadmap">
+        <div class="page-header">
+          <div>
+            <div class="page-title">7-Day Hardening Roadmap</div>
+            <div class="page-subtitle">Interactive checklist — click phase headers to expand/collapse</div>
+          </div>
+        </div>
+        <div id="roadmap-phases"></div>
+      </section>
+
+      <!-- ── DISCOVERY ─────────────────────────────────────── -->
+      <section class="page-section" id="section-discovery" aria-label="Discovery">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Discovery Pipeline</div>
+            <div class="page-subtitle">Idea → Analysis → Ranking → Evolution → Validation → Deployment</div>
+          </div>
+        </div>
+
+        <div class="card mb-4">
+          <div class="card-header">
+            <div class="card-title"><span class="card-icon">🔄</span> Pipeline Status</div>
+          </div>
+          <div id="discovery-pipeline"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title"><span class="card-icon">🔍</span> Discovery Repositories</div>
+          </div>
+          <div id="discovery-runs"></div>
+        </div>
+      </section>
+
+      <!-- ── SANDBOX ───────────────────────────────────────── -->
+      <section class="page-section" id="section-sandbox" aria-label="Sandbox">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Sandbox Build Monitor</div>
+            <div class="page-subtitle">Active builds and experiment tracking</div>
+          </div>
+          <div class="page-actions">
+            <a href="https://github.com/Infinity-X-One-Systems/infinity-sandbox/actions" target="_blank" class="btn">Actions ↗</a>
+          </div>
+        </div>
+
+        <div class="card mb-4">
+          <div class="card-header">
+            <div class="card-title"><span class="card-icon">🧪</span> Sandbox Repositories</div>
+          </div>
+          <div id="sandbox-builds"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title"><span class="card-icon">🔗</span> AI Runtime Integrations</div>
+          </div>
+          <div class="deeplink-grid">
+            <a href="https://github.com/Infinity-X-One-Systems/infinity-sandbox" target="_blank" class="deeplink-card">
+              <div class="deeplink-icon">🧪</div>
+              <div><div class="deeplink-label">infinity-sandbox</div><div class="deeplink-desc">Primary experiment repo</div></div>
+            </a>
+            <div class="deeplink-card" onclick="IACP.showToast('Ollama: configure endpoint in Settings','info')">
+              <div class="deeplink-icon">🦙</div>
+              <div><div class="deeplink-label">Ollama</div><div class="deeplink-desc">Local LLM runtime</div></div>
+            </div>
+            <div class="deeplink-card" onclick="IACP.showToast('Groq: configure API key in Settings','info')">
+              <div class="deeplink-icon">⚡</div>
+              <div><div class="deeplink-label">Groq</div><div class="deeplink-desc">Ultra-fast inference</div></div>
+            </div>
+            <div class="deeplink-card" onclick="IACP.showToast('Gemini: configure API key in Settings','info')">
+              <div class="deeplink-icon">♊</div>
+              <div><div class="deeplink-label">Gemini</div><div class="deeplink-desc">Google AI Studio</div></div>
+            </div>
+            <a href="https://console.cloud.google.com/vertex-ai?project=infinity-x-one-systems" target="_blank" class="deeplink-card">
+              <div class="deeplink-icon">🌐</div>
+              <div><div class="deeplink-label">Vertex AI</div><div class="deeplink-desc">GCP: infinity-x-one-systems</div></div>
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── VALIDATION ────────────────────────────────────── -->
+      <section class="page-section" id="section-validation" aria-label="Validation">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Validation Matrix</div>
+            <div class="page-subtitle">PAT status, PR queue, branch protection, and security checks</div>
+          </div>
+        </div>
+
+        <div class="card mb-4">
+          <div class="card-header">
+            <div class="card-title"><span class="card-icon">✅</span> Governance Checks</div>
+            <div id="token-validation-status"></div>
+          </div>
+          <div class="matrix-grid" id="validation-matrix"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title"><span class="card-icon">🔀</span> Open PR Matrix</div>
+          </div>
+          <div id="pr-matrix"></div>
+        </div>
+      </section>
+
+      <!-- ── INDUSTRY ──────────────────────────────────────── -->
+      <section class="page-section" id="section-industry" aria-label="Industry">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Repo Categorization</div>
+            <div class="page-subtitle">All org repositories grouped by category and topic</div>
+          </div>
+          <div class="page-actions">
+            <button class="btn btn-primary" onclick="IACP.showToast('Live sync requires GitHub token with read:org scope','info')">↻ Live Sync</button>
+          </div>
+        </div>
+        <div id="industry-repos"></div>
+      </section>
+
+      <!-- ── MEMORY ────────────────────────────────────────── -->
+      <section class="page-section" id="section-memory" aria-label="Memory">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Memory Viewer</div>
+            <div class="page-subtitle">Read-only sync from <code>InfinityXOneSystems/infinity-core-memory</code></div>
+          </div>
+          <div class="page-actions">
+            <a href="https://github.com/InfinityXOneSystems/infinity-core-memory" target="_blank" class="btn">View Repo ↗</a>
+          </div>
+        </div>
+
+        <div class="grid-2-1">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title"><span class="card-icon">🧠</span> Memory Timeline</div>
+              <span class="badge badge-muted">read-only</span>
+            </div>
+            <div id="memory-timeline"></div>
+          </div>
+
+          <div>
+            <div class="card mb-3">
+              <div class="card-header">
+                <div class="card-title"><span class="card-icon">📊</span> Memory Stats</div>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:10px">
+                <div>
+                  <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px">
+                    <span>Decisions</span><span class="text-accent font-bold">—</span>
+                  </div>
+                  <div class="progress-bar"><div class="progress-fill" style="width:30%"></div></div>
+                </div>
+                <div>
+                  <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px">
+                    <span>Deployments</span><span class="text-success font-bold">—</span>
+                  </div>
+                  <div class="progress-bar"><div class="progress-fill success" style="width:55%"></div></div>
+                </div>
+                <div>
+                  <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px">
+                    <span>Risk Logs</span><span class="text-danger font-bold">—</span>
+                  </div>
+                  <div class="progress-bar"><div class="progress-fill danger" style="width:15%"></div></div>
+                </div>
+                <div>
+                  <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px">
+                    <span>Benchmarks</span><span class="text-warning font-bold">—</span>
+                  </div>
+                  <div class="progress-bar"><div class="progress-fill warning" style="width:40%"></div></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title"><span class="card-icon">🔗</span> Related Repos</div>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:6px">
+                ${['infinity-core-memory','infinity-core','infinity-vision','infinity-tools'].map(r =>
+                  `<a href="https://github.com/Infinity-X-One-Systems/${r}" target="_blank" class="deeplink-card" style="padding:8px 12px">
+                    <div class="deeplink-icon" style="font-size:14px">📁</div>
+                    <div><div class="deeplink-label" style="font-size:11px">${r}</div></div>
+                  </a>`
+                ).join('')}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── VAULT ─────────────────────────────────────────── -->
+      <section class="page-section" id="section-vault" aria-label="Vault">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Vault &amp; Security</div>
+            <div class="page-subtitle">GitHub Advanced Security, secret scanning, and branch protection</div>
+          </div>
+          <div class="page-actions">
+            <a href="https://github.com/orgs/Infinity-X-One-Systems/security" target="_blank" class="btn btn-primary">Security Dashboard ↗</a>
+          </div>
+        </div>
+
+        <div class="vault-panel" id="vault-grid"></div>
+
+        <div class="card mb-4">
+          <div class="card-header">
+            <div class="card-title"><span class="card-icon">🔐</span> Secret Scanning</div>
+            <span class="badge badge-success">Active</span>
+          </div>
+          <div class="alert alert-success">
+            <span>✓</span>
+            <span>Secret scanning is enabled org-wide. Any leaked secrets will be flagged in the Security dashboard and via email to <strong>infot@infinityxonesystems.com</strong>.</span>
+          </div>
+          <div class="deeplink-grid">
+            <a href="https://github.com/orgs/Infinity-X-One-Systems/security/secret-scanning" target="_blank" class="deeplink-card">
+              <div class="deeplink-icon">🔍</div>
+              <div><div class="deeplink-label">Secret Scanning Alerts</div><div class="deeplink-desc">View all active alerts</div></div>
+            </a>
+            <a href="https://github.com/orgs/Infinity-X-One-Systems/security/code-scanning" target="_blank" class="deeplink-card">
+              <div class="deeplink-icon">🛡️</div>
+              <div><div class="deeplink-label">CodeQL Alerts</div><div class="deeplink-desc">Static analysis results</div></div>
+            </a>
+            <a href="https://github.com/orgs/Infinity-X-One-Systems/security/dependabot" target="_blank" class="deeplink-card">
+              <div class="deeplink-icon">🤖</div>
+              <div><div class="deeplink-label">Dependabot</div><div class="deeplink-desc">Dependency vulnerability alerts</div></div>
+            </a>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title"><span class="card-icon">🌐</span> Endpoint Status</div>
+          </div>
+          <div class="deeplink-grid">
+            <div class="deeplink-card" onclick="IACP.showToast('vizual-x.com — Cloudflare tunnel pending full configuration','warning')">
+              <div class="deeplink-icon">☁️</div>
+              <div><div class="deeplink-label">vizual-x.com</div><div class="deeplink-desc">Cloudflare tunnel — partial</div></div>
+            </div>
+            <div class="deeplink-card" onclick="IACP.showToast('infinityxai.com — Infinity Orchestrator active','success')">
+              <div class="deeplink-icon">🤖</div>
+              <div><div class="deeplink-label">infinityxai.com</div><div class="deeplink-desc">Infinity Orchestrator App</div></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── EDITOR ─────────────────────────────────────────── -->
+      <section class="page-section" id="section-editor" aria-label="Editor">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Monaco Editor</div>
+            <div class="page-subtitle">Embedded VS Code editor — inspect and draft config files</div>
+          </div>
+        </div>
+
+        <div class="editor-shell">
+          <div class="editor-toolbar">
+            <div class="editor-tabs">
+              <div class="editor-tab active">project-schema.yml</div>
+              <div class="editor-tab">org-index.json</div>
+              <div class="editor-tab">memory-snapshot.json</div>
+            </div>
+            <button class="btn btn-sm" onclick="IACP.showToast('Content copied to clipboard','success')" style="flex-shrink:0">Copy</button>
+          </div>
+          <div id="monaco-container" style="flex:1;min-height:0"></div>
+        </div>
+      </section>
+
+      <!-- ── SETTINGS ──────────────────────────────────────── -->
+      <section class="page-section" id="section-settings" aria-label="Settings">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Settings &amp; Configuration</div>
+            <div class="page-subtitle">GitHub token, org context, and system preferences</div>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <div class="settings-section-header">🔑 GitHub Authentication</div>
+          <div class="settings-section-body">
+            <div class="alert alert-warning">
+              <span>⚠</span>
+              <span>Your token is stored only in <strong>localStorage</strong> in this browser. It is never sent to any third-party server. Use a Fine-Grained PAT with <code>read:org</code>, <code>repo</code>, and <code>read:project</code> scopes.</span>
+            </div>
+            <div class="form-group">
+              <label for="settings-token">Personal Access Token (PAT)</label>
+              <input id="settings-token" type="password" class="form-input" placeholder="github_pat_…" autocomplete="off" />
+              <div class="hint">Fine-Grained PAT recommended. Required scopes: read:org, repo, read:project, security_events</div>
+            </div>
+            <div class="form-group">
+              <label for="settings-org">Organization</label>
+              <input id="settings-org" type="text" class="form-input" placeholder="Infinity-X-One-Systems" />
+            </div>
+            <div id="token-validation-status"></div>
+            <div style="display:flex;gap:8px;margin-top:4px">
+              <button id="settings-save-btn" class="btn btn-primary">Save &amp; Validate Token</button>
+              <button id="settings-sync-btn" class="btn">↻ Trigger Org Index Sync</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <div class="settings-section-header">🔗 VS Code Workspace</div>
+          <div class="settings-section-body">
+            <div class="deeplink-grid">
+              <a href="vscode://vscode.git/clone?url=https://github.com/Infinity-X-One-Systems/infinity-admin-control-plane" class="deeplink-card">
+                <div class="deeplink-icon">💻</div>
+                <div><div class="deeplink-label">Clone: Admin Control Plane</div><div class="deeplink-desc">Open in VS Code</div></div>
+              </a>
+              <a href="vscode://vscode.git/clone?url=https://github.com/Infinity-X-One-Systems/infinity-core" class="deeplink-card">
+                <div class="deeplink-icon">⚡</div>
+                <div><div class="deeplink-label">Clone: infinity-core</div><div class="deeplink-desc">Open in VS Code</div></div>
+              </a>
+              <a href="vscode://vscode.git/clone?url=https://github.com/Infinity-X-One-Systems/infinity-sandbox" class="deeplink-card">
+                <div class="deeplink-icon">🧪</div>
+                <div><div class="deeplink-label">Clone: infinity-sandbox</div><div class="deeplink-desc">Open in VS Code</div></div>
+              </a>
+              <a href="vscode://vscode.git/clone?url=https://github.com/Infinity-X-One-Systems/infinity-core-memory" class="deeplink-card">
+                <div class="deeplink-icon">🧠</div>
+                <div><div class="deeplink-label">Clone: infinity-core-memory</div><div class="deeplink-desc">Open in VS Code</div></div>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <div class="settings-section-header">🤖 AI Runtime Endpoints</div>
+          <div class="settings-section-body">
+            <div class="form-row">
+              <div class="form-group">
+                <label>Ollama Endpoint</label>
+                <input type="text" class="form-input" placeholder="http://localhost:11434" />
+              </div>
+              <div class="form-group">
+                <label>Groq API Key</label>
+                <input type="password" class="form-input" placeholder="gsk_…" />
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Gemini API Key</label>
+                <input type="password" class="form-input" placeholder="AIza…" />
+              </div>
+              <div class="form-group">
+                <label>GCP Project ID</label>
+                <input type="text" class="form-input" placeholder="infinity-x-one-systems" value="infinity-x-one-systems" />
+              </div>
+            </div>
+            <div class="hint">API keys are stored in localStorage only. Configure Cloudflare tunnel for remote access.</div>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <div class="settings-section-header">🎨 Appearance</div>
+          <div class="settings-section-body">
+            <div style="display:flex;align-items:center;gap:16px">
+              <span style="font-size:12px;font-weight:600">Theme:</span>
+              <button class="btn" onclick="document.getElementById('theme-toggle').click()">Toggle Dark / Light Mode</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main><!-- /.content-area -->
+  </div><!-- /.main-wrapper -->
+</div><!-- /.app-shell -->
+
+<!-- Toast container -->
+<div id="toast-container" aria-live="polite"></div>
+
+<!-- App entry point (ES module) -->
+<script type="module" src="app.js"></script>
+
+</body>
+</html>
