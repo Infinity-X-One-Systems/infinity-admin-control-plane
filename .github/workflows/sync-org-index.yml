@@ -1,0 +1,121 @@
+# ============================================================
+# INFINITY ADMIN CONTROL PLANE — Org Repo Index Sync
+# Fetches all repos in the org via GitHub GraphQL API and
+# writes the result to _STATE/org-index.json.
+# Runs nightly and on workflow_dispatch.
+# ============================================================
+name: Sync Org Repo Index
+
+on:
+  schedule:
+    # Every day at 02:00 UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+    inputs:
+      org:
+        description: 'GitHub org to index (default: Infinity-X-One-Systems)'
+        required: false
+        default: 'Infinity-X-One-Systems'
+
+permissions:
+  contents: write
+
+env:
+  ORG: ${{ github.event.inputs.org || 'Infinity-X-One-Systems' }}
+
+jobs:
+  sync:
+    name: Index Org Repos
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Fetch org repos via GraphQL
+        id: fetch
+        env:
+          GH_TOKEN: ${{ secrets.GH_ORG_READ_TOKEN || secrets.GITHUB_TOKEN }}
+        run: |
+          ORG="${{ env.ORG }}"
+          echo "Indexing org: $ORG"
+
+          python3 << 'PYEOF'
+          import json, os, urllib.request, urllib.error
+
+          ORG   = os.environ["ORG"]
+          TOKEN = os.environ.get("GH_TOKEN", "")
+
+          QUERY = """
+          query OrgRepos($org: String!, $after: String) {
+            organization(login: $org) {
+              repositories(first: 50, after: $after, orderBy: {field: UPDATED_AT, direction: DESC}) {
+                pageInfo { hasNextPage endCursor }
+                nodes {
+                  name description url isPrivate isArchived isFork
+                  stargazerCount forkCount pushedAt
+                  primaryLanguage { name color }
+                  defaultBranchRef { name }
+                  repositoryTopics(first: 10) { nodes { topic { name } } }
+                  openPullRequests: pullRequests(states: OPEN) { totalCount }
+                  openIssues: issues(states: OPEN) { totalCount }
+                }
+              }
+            }
+          }"""
+
+          headers = {"Content-Type": "application/json"}
+          if TOKEN:
+              headers["Authorization"] = f"Bearer {TOKEN}"
+
+          repos = []
+          after = None
+          while True:
+              variables = {"org": ORG, "after": after}
+              payload   = json.dumps({"query": QUERY, "variables": variables}).encode()
+              req = urllib.request.Request(
+                  "https://api.github.com/graphql",
+                  data=payload, headers=headers, method="POST"
+              )
+              try:
+                  with urllib.request.urlopen(req) as resp:
+                      data = json.loads(resp.read())
+              except urllib.error.HTTPError as e:
+                  print(f"HTTP {e.code}: {e.read().decode()[:200]}")
+                  break
+
+              if "errors" in data:
+                  print("GraphQL errors:", data["errors"])
+                  break
+
+              page = data["data"]["organization"]["repositories"]
+              repos.extend(page["nodes"])
+              if not page["pageInfo"]["hasNextPage"]:
+                  break
+              after = page["pageInfo"]["endCursor"]
+
+          import datetime
+          output = {
+              "org":       ORG,
+              "syncedAt":  datetime.datetime.utcnow().isoformat() + "Z",
+              "totalCount": len(repos),
+              "repos":     repos,
+          }
+
+          os.makedirs("_STATE", exist_ok=True)
+          with open("_STATE/org-index.json", "w") as f:
+              json.dump(output, f, indent=2)
+
+          print(f"Indexed {len(repos)} repos into _STATE/org-index.json")
+          PYEOF
+
+      - name: Commit updated index
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add _STATE/org-index.json
+          git diff --staged --quiet && echo "No changes" && exit 0
+          git commit -m "chore: sync org repo index [$(date -u +%Y-%m-%dT%H:%MZ)]"
+          git push

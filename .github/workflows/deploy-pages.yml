@@ -1,0 +1,79 @@
+# ============================================================
+# INFINITY ADMIN CONTROL PLANE — Deploy to GitHub Pages
+# Deploys the dashboard/ directory as a GitHub Pages site.
+# ============================================================
+name: Deploy Dashboard to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'dashboard/**'
+      - 'pwa/**'
+      - '_STATE/**'
+      - '.github/workflows/deploy-pages.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      # Build the _site/ deployment artifact:
+      #   _site/dashboard/   — the dashboard SPA
+      #   _site/_STATE/      — state JSON files (at ../_STATE/ from dashboard/)
+      #   _site/pwa/         — PWA manifest + service worker
+      #   _site/index.html   — root redirect to dashboard/
+      - name: Prepare deployment artifact
+        run: |
+          mkdir -p _site/dashboard _site/_STATE _site/pwa
+
+          # Dashboard files
+          cp -r dashboard/. _site/dashboard/
+
+          # State files (at site root so dashboard can access as ../_STATE/)
+          cp -r _STATE/. _site/_STATE/
+
+          # PWA files (at site root so dashboard can access as ../pwa/)
+          cp -r pwa/. _site/pwa/
+
+          # Root redirect
+          cat > _site/index.html << 'EOF'
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+            <meta charset="UTF-8">
+            <meta http-equiv="refresh" content="0;url=dashboard/">
+            <title>Infinity Admin Control Plane</title>
+          </head>
+          <body><a href="dashboard/">Open Dashboard →</a></body>
+          </html>
+          EOF
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '_site'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

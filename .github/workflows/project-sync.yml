@@ -1,0 +1,164 @@
+# ============================================================
+# INFINITY ADMIN CONTROL PLANE — Project Board Sync
+# Reads GitHub Projects V2 state and writes it to
+# _STATE/project-map.json for the dashboard to consume.
+# ============================================================
+name: Project Board Sync
+
+on:
+  schedule:
+    # Every 30 minutes during working hours UTC, hourly otherwise
+    - cron: '*/30 8-20 * * 1-5'
+    - cron: '0 * * * 6,0'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    name: Sync Project State
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Fetch project board via GraphQL
+        env:
+          GH_TOKEN: ${{ secrets.GH_ORG_READ_TOKEN || secrets.GITHUB_TOKEN }}
+          ORG: 'Infinity-X-One-Systems'
+        run: |
+          python3 << 'PYEOF'
+          import json, os, urllib.request, urllib.error, datetime
+
+          ORG   = os.environ.get("ORG", "Infinity-X-One-Systems")
+          TOKEN = os.environ.get("GH_TOKEN", "")
+
+          QUERY = """
+          query OrgProjects($org: String!, $after: String) {
+            organization(login: $org) {
+              projectsV2(first: 10, after: $after) {
+                pageInfo { hasNextPage endCursor }
+                nodes {
+                  id title number url shortDescription updatedAt
+                  items(first: 100) {
+                    totalCount
+                    nodes {
+                      id type
+                      fieldValues(first: 8) {
+                        nodes {
+                          ... on ProjectV2ItemFieldSingleSelectValue {
+                            name
+                            field { ... on ProjectV2SingleSelectField { name } }
+                          }
+                        }
+                      }
+                      content {
+                        ... on Issue {
+                          title number state url
+                          repository { name }
+                        }
+                        ... on PullRequest {
+                          title number state url
+                          repository { name }
+                        }
+                        ... on DraftIssue { title }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }"""
+
+          headers = {"Content-Type": "application/json"}
+          if TOKEN:
+              headers["Authorization"] = f"Bearer {TOKEN}"
+
+          projects = []
+          after    = None
+          while True:
+              payload = json.dumps({"query": QUERY, "variables": {"org": ORG, "after": after}}).encode()
+              req = urllib.request.Request(
+                  "https://api.github.com/graphql",
+                  data=payload, headers=headers, method="POST"
+              )
+              try:
+                  with urllib.request.urlopen(req) as resp:
+                      data = json.loads(resp.read())
+              except urllib.error.HTTPError as e:
+                  print(f"HTTP {e.code}: {e.read().decode()[:200]}")
+                  break
+
+              if "errors" in data:
+                  print("GraphQL errors:", data["errors"])
+                  break
+
+              page = data["data"]["organization"]["projectsV2"]
+              projects.extend(page["nodes"])
+              if not page["pageInfo"]["hasNextPage"]:
+                  break
+              after = page["pageInfo"]["endCursor"]
+
+          # Build a column-based view for the Kanban board
+          COLUMN_ORDER = [
+              "NEW_IDEA","DISCOVERY","EVOLUTION_COMPLETE","SANDBOX_BUILD",
+              "VALIDATION","FIX_LOOP","DEPLOYMENT_CANDIDATE","AWAITING_APPROVAL","RELEASED"
+          ]
+          COL_COLORS = {
+              "NEW_IDEA":"#8b949e","DISCOVERY":"#58a6ff","EVOLUTION_COMPLETE":"#bc8cff",
+              "SANDBOX_BUILD":"#ffa657","VALIDATION":"#d29922","FIX_LOOP":"#f85149",
+              "DEPLOYMENT_CANDIDATE":"#3fb950","AWAITING_APPROVAL":"#00b4ff","RELEASED":"#1f6feb"
+          }
+
+          columns = {c: {"id": c, "label": c.replace("_", " "), "color": COL_COLORS.get(c, "#8b949e"), "items": []} for c in COLUMN_ORDER}
+
+          for project in projects:
+              for item in project.get("items", {}).get("nodes", []):
+                  status = None
+                  for fv in item.get("fieldValues", {}).get("nodes", []):
+                      if fv.get("field", {}).get("name", "").upper() == "STATUS":
+                          status = fv.get("name", "").upper().replace(" ", "_")
+                  if not status:
+                      status = "NEW_IDEA"
+                  content = item.get("content") or {}
+                  card = {
+                      "id":    item.get("id"),
+                      "type":  item.get("type", "ISSUE").lower(),
+                      "title": content.get("title", "Untitled"),
+                      "repo":  content.get("repository", {}).get("name", ""),
+                      "state": content.get("state", ""),
+                      "url":   content.get("url", ""),
+                      "project": project.get("title", ""),
+                  }
+                  if status in columns:
+                      columns[status]["items"].append(card)
+                  else:
+                      columns["NEW_IDEA"]["items"].append(card)
+
+          output = {
+              "org":      ORG,
+              "syncedAt": datetime.datetime.utcnow().isoformat() + "Z",
+              "projects": [{"id": p["id"], "title": p["title"], "number": p["number"], "url": p["url"]} for p in projects],
+              "columns":  list(columns.values()),
+          }
+
+          os.makedirs("_STATE", exist_ok=True)
+          with open("_STATE/project-map.json", "w") as f:
+              json.dump(output, f, indent=2)
+
+          total_items = sum(len(c["items"]) for c in columns.values())
+          print(f"Wrote {len(projects)} projects, {total_items} items to _STATE/project-map.json")
+          PYEOF
+
+      - name: Commit updated project map
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add _STATE/project-map.json
+          git diff --staged --quiet && echo "No changes" && exit 0
+          git commit -m "chore: sync project board state [$(date -u +%Y-%m-%dT%H:%MZ)]"
+          git push

@@ -1,0 +1,155 @@
+# ============================================================
+# INFINITY ADMIN CONTROL PLANE — Validator Status Sync
+# Checks PAT validity, open PRs, branch protection, and
+# security status across all org repos.
+# Writes results to _STATE/validator-status.json.
+# ============================================================
+name: Validator Status Sync
+
+on:
+  schedule:
+    # Every 4 hours
+    - cron: '0 */4 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  validate:
+    name: Run Validation Sweep
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Run validation checks
+        env:
+          GH_TOKEN:   ${{ secrets.GH_ORG_READ_TOKEN || secrets.GITHUB_TOKEN }}
+          ORG:        'Infinity-X-One-Systems'
+          ADMIN_REPO: 'infinity-admin-control-plane'
+        run: |
+          python3 << 'PYEOF'
+          import json, os, urllib.request, urllib.error, datetime
+
+          ORG        = os.environ.get("ORG", "Infinity-X-One-Systems")
+          TOKEN      = os.environ.get("GH_TOKEN", "")
+          ADMIN_REPO = os.environ.get("ADMIN_REPO", "infinity-admin-control-plane")
+
+          base_headers = {
+              "Accept": "application/vnd.github+json",
+              "X-GitHub-Api-Version": "2022-11-28",
+          }
+          if TOKEN:
+              base_headers["Authorization"] = f"Bearer {TOKEN}"
+
+          def gh_get(path):
+              url = f"https://api.github.com{path}" if path.startswith("/") else path
+              req = urllib.request.Request(url, headers=base_headers)
+              try:
+                  with urllib.request.urlopen(req) as r:
+                      return json.loads(r.read()), r.status
+              except urllib.error.HTTPError as e:
+                  return None, e.code
+
+          checks = {}
+
+          # 1. Token / Auth check
+          user_data, status = gh_get("/user")
+          checks["token"] = {
+              "label":  "GitHub PAT",
+              "status": "pass" if status == 200 else "fail",
+              "value":  user_data.get("login", "unknown") if user_data else f"HTTP {status}",
+          }
+
+          # 2. Org access
+          org_data, org_status = gh_get(f"/orgs/{ORG}")
+          checks["org"] = {
+              "label":  "Org Access",
+              "status": "pass" if org_status == 200 else "fail",
+              "value":  org_data.get("login", ORG) if org_data else f"HTTP {org_status}",
+          }
+
+          # 3. Open PRs across first-page repos
+          repos_data, _ = gh_get(f"/orgs/{ORG}/repos?per_page=50&sort=pushed")
+          open_pr_count = 0
+          repo_names    = []
+          if repos_data:
+              repo_names = [r["name"] for r in repos_data]
+              for repo in repos_data:
+                  open_pr_count += repo.get("open_issues_count", 0)  # includes issues
+
+          checks["open_prs"] = {
+              "label":  "Open PRs (est.)",
+              "status": "warn" if open_pr_count > 10 else "pass",
+              "value":  str(open_pr_count),
+          }
+
+          # 4. Branch protection on admin repo
+          bp_data, bp_status = gh_get(f"/repos/{ORG}/{ADMIN_REPO}/branches/main/protection")
+          checks["branch_protection"] = {
+              "label":  "Branch Protection (main)",
+              "status": "pass" if bp_status == 200 else "warn",
+              "value":  "Enabled" if bp_status == 200 else f"HTTP {bp_status}",
+          }
+
+          # 5. Secret scanning alerts (org-level)
+          ss_data, ss_status = gh_get(f"/orgs/{ORG}/secret-scanning/alerts?state=open&per_page=5")
+          checks["secret_scanning"] = {
+              "label":  "Secret Scan Alerts",
+              "status": "fail" if (isinstance(ss_data, list) and len(ss_data) > 0) else "pass",
+              "value":  str(len(ss_data)) + " open" if isinstance(ss_data, list) else "N/A",
+          }
+
+          # 6. CODEOWNERS in admin repo
+          co_data, co_status = gh_get(f"/repos/{ORG}/{ADMIN_REPO}/contents/.github/CODEOWNERS")
+          checks["codeowners"] = {
+              "label":  "CODEOWNERS",
+              "status": "pass" if co_status == 200 else "warn",
+              "value":  "Present" if co_status == 200 else "Missing",
+          }
+
+          # Compute overall health
+          failed = sum(1 for c in checks.values() if c["status"] == "fail")
+          warned = sum(1 for c in checks.values() if c["status"] == "warn")
+          health = "healthy" if failed == 0 and warned == 0 else "degraded" if failed == 0 else "critical"
+
+          output = {
+              "org":          ORG,
+              "syncedAt":     datetime.datetime.utcnow().isoformat() + "Z",
+              "health":       health,
+              "failCount":    failed,
+              "warnCount":    warned,
+              "repos":        repo_names[:20],
+              "checks":       checks,
+          }
+
+          os.makedirs("_STATE", exist_ok=True)
+          with open("_STATE/validator-status.json", "w") as f:
+              json.dump(output, f, indent=2)
+
+          print(f"Validation complete: health={health}, fails={failed}, warns={warned}")
+          PYEOF
+
+      - name: Commit validator status
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add _STATE/validator-status.json
+          git diff --staged --quiet && echo "No changes" && exit 0
+          git commit -m "chore: update validator status [$(date -u +%Y-%m-%dT%H:%MZ)]"
+          git push
+
+      - name: Fail workflow if critical
+        env:
+          HEALTH_FILE: '_STATE/validator-status.json'
+        run: |
+          health=$(python3 -c "import json; d=json.load(open('_STATE/validator-status.json')); print(d['health'])")
+          echo "System health: $health"
+          if [ "$health" = "critical" ]; then
+            echo "::error::Critical validation failures detected!"
+            exit 1
+          fi
