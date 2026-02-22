@@ -1,12 +1,12 @@
 {
   "org": "Infinity-X-One-Systems",
-  "syncedAt": "2026-02-22T16:37:59.527546Z",
+  "syncedAt": "2026-02-22T20:34:04.540519Z",
   "health": "critical",
   "failCount": 1,
-  "warnCount": 2,
+  "warnCount": 1,
   "repos": [
-    "infinity-admin-control-plane",
     "infinity-orchestrator",
+    "infinity-admin-control-plane",
     "infinity-core-memory",
     "doc-evolution-system",
     "infinity-invention-machine",
@@ -29,8 +29,8 @@
     },
     "open_prs": {
       "label": "Open PRs (est.)",
-      "status": "warn",
-      "value": "13"
+      "status": "pass",
+      "value": "6"
     },
     "branch_protection": {
       "label": "Branch Protection (main)",
