@@ -1,14 +1,15 @@
 {
   "org": "Infinity-X-One-Systems",
-  "syncedAt": "2026-02-22T05:17:51.561530Z",
+  "syncedAt": "2026-02-22T08:39:37.829684Z",
   "health": "critical",
   "failCount": 1,
   "warnCount": 2,
   "repos": [
     "infinity-admin-control-plane",
     "infinity-orchestrator",
-    "doc-evolution-system",
     "infinity-core-memory",
+    "doc-evolution-system",
+    "infinity-invention-machine",
     "infinity-experiments",
     "infinity-governance",
     "infinity-invention-machine-v1",
