@@ -1,135 +1,235 @@
 {
   "org": "Infinity-X-One-Systems",
-  "syncedAt": "2026-02-21T00:00:00Z",
-  "totalCount": 8,
+  "syncedAt": "2026-02-22T04:09:53.802059Z",
+  "totalCount": 9,
   "repos": [
     {
+      "name": "infinity-orchestrator",
+      "description": "Infinity Orchestrator",
+      "url": "https://github.com/Infinity-X-One-Systems/infinity-orchestrator",
+      "isPrivate": false,
+      "isArchived": false,
+      "isFork": false,
+      "stargazerCount": 0,
+      "forkCount": 0,
+      "pushedAt": "2026-02-22T03:20:44Z",
+      "primaryLanguage": {
+        "name": "Python",
+        "color": "#3572A5"
+      },
+      "defaultBranchRef": {
+        "name": "main"
+      },
+      "repositoryTopics": {
+        "nodes": []
+      },
+      "openPullRequests": {
+        "totalCount": 7
+      },
+      "openIssues": {
+        "totalCount": 1
+      }
+    },
+    {
       "name": "infinity-admin-control-plane",
-      "description": "Sovereign command dashboard for the Infinity Invention Machine",
+      "description": null,
       "url": "https://github.com/Infinity-X-One-Systems/infinity-admin-control-plane",
       "isPrivate": false,
       "isArchived": false,
       "isFork": false,
       "stargazerCount": 0,
       "forkCount": 0,
-      "pushedAt": "2026-02-21T00:00:00Z",
-      "primaryLanguage": { "name": "HTML", "color": "#e34c26" },
-      "defaultBranchRef": { "name": "main" },
-      "repositoryTopics": { "nodes": [{ "topic": { "name": "core" } }, { "topic": { "name": "admin" } }] },
-      "openPullRequests": { "totalCount": 0 },
-      "openIssues": { "totalCount": 0 }
-    },
-    {
-      "name": "infinity-core",
-      "description": "Core infrastructure and shared utilities for the Infinity system",
-      "url": "https://github.com/Infinity-X-One-Systems/infinity-core",
-      "isPrivate": false,
-      "isArchived": false,
-      "isFork": false,
-      "stargazerCount": 0,
-      "forkCount": 0,
-      "pushedAt": "2026-02-20T12:00:00Z",
-      "primaryLanguage": { "name": "TypeScript", "color": "#3178c6" },
-      "defaultBranchRef": { "name": "main" },
-      "repositoryTopics": { "nodes": [{ "topic": { "name": "core" } }] },
-      "openPullRequests": { "totalCount": 2 },
-      "openIssues": { "totalCount": 5 }
+      "pushedAt": "2026-02-22T02:42:25Z",
+      "primaryLanguage": {
+        "name": "JavaScript",
+        "color": "#f1e05a"
+      },
+      "defaultBranchRef": {
+        "name": "main"
+      },
+      "repositoryTopics": {
+        "nodes": []
+      },
+      "openPullRequests": {
+        "totalCount": 0
+      },
+      "openIssues": {
+        "totalCount": 0
+      }
     },
     {
       "name": "infinity-core-memory",
-      "description": "Persistent memory store — decisions, deployments, risk logs, benchmarks",
+      "description": null,
       "url": "https://github.com/Infinity-X-One-Systems/infinity-core-memory",
       "isPrivate": false,
       "isArchived": false,
       "isFork": false,
       "stargazerCount": 0,
       "forkCount": 0,
-      "pushedAt": "2026-02-20T08:00:00Z",
-      "primaryLanguage": { "name": "Markdown", "color": "#083fa1" },
-      "defaultBranchRef": { "name": "main" },
-      "repositoryTopics": { "nodes": [{ "topic": { "name": "memory" } }] },
-      "openPullRequests": { "totalCount": 0 },
-      "openIssues": { "totalCount": 1 }
+      "pushedAt": "2026-02-21T09:13:52Z",
+      "primaryLanguage": {
+        "name": "Shell",
+        "color": "#89e051"
+      },
+      "defaultBranchRef": {
+        "name": "main"
+      },
+      "repositoryTopics": {
+        "nodes": []
+      },
+      "openPullRequests": {
+        "totalCount": 0
+      },
+      "openIssues": {
+        "totalCount": 0
+      }
     },
     {
-      "name": "infinity-vision",
-      "description": "Strategic vision documents and architectural blueprints",
-      "url": "https://github.com/Infinity-X-One-Systems/infinity-vision",
+      "name": "infinity-experiments",
+      "description": null,
+      "url": "https://github.com/Infinity-X-One-Systems/infinity-experiments",
       "isPrivate": false,
       "isArchived": false,
       "isFork": false,
       "stargazerCount": 0,
       "forkCount": 0,
-      "pushedAt": "2026-02-19T18:00:00Z",
-      "primaryLanguage": { "name": "Markdown", "color": "#083fa1" },
-      "defaultBranchRef": { "name": "main" },
-      "repositoryTopics": { "nodes": [{ "topic": { "name": "discovery" } }] },
-      "openPullRequests": { "totalCount": 1 },
-      "openIssues": { "totalCount": 3 }
+      "pushedAt": "2026-02-21T06:21:16Z",
+      "primaryLanguage": {
+        "name": "Python",
+        "color": "#3572A5"
+      },
+      "defaultBranchRef": {
+        "name": "main"
+      },
+      "repositoryTopics": {
+        "nodes": []
+      },
+      "openPullRequests": {
+        "totalCount": 1
+      },
+      "openIssues": {
+        "totalCount": 0
+      }
     },
     {
-      "name": "infinity-tools",
-      "description": "Developer tooling, CLI utilities, and automation helpers",
-      "url": "https://github.com/Infinity-X-One-Systems/infinity-tools",
+      "name": "doc-evolution-system",
+      "description": null,
+      "url": "https://github.com/Infinity-X-One-Systems/doc-evolution-system",
       "isPrivate": false,
       "isArchived": false,
       "isFork": false,
       "stargazerCount": 0,
       "forkCount": 0,
-      "pushedAt": "2026-02-18T14:00:00Z",
-      "primaryLanguage": { "name": "Python", "color": "#3572A5" },
-      "defaultBranchRef": { "name": "main" },
-      "repositoryTopics": { "nodes": [{ "topic": { "name": "tools" } }] },
-      "openPullRequests": { "totalCount": 1 },
-      "openIssues": { "totalCount": 2 }
+      "pushedAt": "2026-02-21T11:09:01Z",
+      "primaryLanguage": null,
+      "defaultBranchRef": {
+        "name": "main"
+      },
+      "repositoryTopics": {
+        "nodes": []
+      },
+      "openPullRequests": {
+        "totalCount": 4
+      },
+      "openIssues": {
+        "totalCount": 0
+      }
     },
     {
-      "name": "infinity-sandbox",
-      "description": "Experimental builds, AI integrations, and proof-of-concept work",
-      "url": "https://github.com/Infinity-X-One-Systems/infinity-sandbox",
+      "name": "infinity-governance",
+      "description": null,
+      "url": "https://github.com/Infinity-X-One-Systems/infinity-governance",
       "isPrivate": false,
       "isArchived": false,
       "isFork": false,
       "stargazerCount": 0,
       "forkCount": 0,
-      "pushedAt": "2026-02-21T00:30:00Z",
-      "primaryLanguage": { "name": "JavaScript", "color": "#f1e05a" },
-      "defaultBranchRef": { "name": "main" },
-      "repositoryTopics": { "nodes": [{ "topic": { "name": "sandbox" } }, { "topic": { "name": "experiment" } }] },
-      "openPullRequests": { "totalCount": 3 },
-      "openIssues": { "totalCount": 7 }
+      "pushedAt": "2026-02-20T22:08:28Z",
+      "primaryLanguage": null,
+      "defaultBranchRef": {
+        "name": "main"
+      },
+      "repositoryTopics": {
+        "nodes": []
+      },
+      "openPullRequests": {
+        "totalCount": 0
+      },
+      "openIssues": {
+        "totalCount": 0
+      }
     },
     {
-      "name": "infinity-template-infinity-gitops",
-      "description": "GitOps templates and reusable workflow patterns",
-      "url": "https://github.com/Infinity-X-One-Systems/infinity-template-infinity-gitops",
+      "name": "infinity-index",
+      "description": null,
+      "url": "https://github.com/Infinity-X-One-Systems/infinity-index",
       "isPrivate": false,
       "isArchived": false,
       "isFork": false,
       "stargazerCount": 0,
       "forkCount": 0,
-      "pushedAt": "2026-02-17T10:00:00Z",
-      "primaryLanguage": { "name": "YAML", "color": "#cb171e" },
-      "defaultBranchRef": { "name": "main" },
-      "repositoryTopics": { "nodes": [{ "topic": { "name": "tools" } }, { "topic": { "name": "gitops" } }] },
-      "openPullRequests": { "totalCount": 0 },
-      "openIssues": { "totalCount": 0 }
+      "pushedAt": "2026-02-19T22:17:53Z",
+      "primaryLanguage": null,
+      "defaultBranchRef": {
+        "name": "main"
+      },
+      "repositoryTopics": {
+        "nodes": []
+      },
+      "openPullRequests": {
+        "totalCount": 0
+      },
+      "openIssues": {
+        "totalCount": 0
+      }
     },
     {
-      "name": "infinity-experiment",
-      "description": "Rapid experimentation and hypothesis-testing environment",
-      "url": "https://github.com/Infinity-X-One-Systems/infinity-experiment",
+      "name": "infinity-instructions",
+      "description": null,
+      "url": "https://github.com/Infinity-X-One-Systems/infinity-instructions",
       "isPrivate": false,
       "isArchived": false,
       "isFork": false,
       "stargazerCount": 0,
       "forkCount": 0,
-      "pushedAt": "2026-02-16T09:00:00Z",
-      "primaryLanguage": { "name": "Python", "color": "#3572A5" },
-      "defaultBranchRef": { "name": "main" },
-      "repositoryTopics": { "nodes": [{ "topic": { "name": "sandbox" } }] },
-      "openPullRequests": { "totalCount": 0 },
-      "openIssues": { "totalCount": 1 }
+      "pushedAt": "2026-02-19T22:22:52Z",
+      "primaryLanguage": null,
+      "defaultBranchRef": {
+        "name": "main"
+      },
+      "repositoryTopics": {
+        "nodes": []
+      },
+      "openPullRequests": {
+        "totalCount": 0
+      },
+      "openIssues": {
+        "totalCount": 0
+      }
+    },
+    {
+      "name": "infinity-invention-machine-v1",
+      "description": null,
+      "url": "https://github.com/Infinity-X-One-Systems/infinity-invention-machine-v1",
+      "isPrivate": false,
+      "isArchived": false,
+      "isFork": false,
+      "stargazerCount": 0,
+      "forkCount": 0,
+      "pushedAt": "2026-02-20T21:51:07Z",
+      "primaryLanguage": null,
+      "defaultBranchRef": {
+        "name": "main"
+      },
+      "repositoryTopics": {
+        "nodes": []
+      },
+      "openPullRequests": {
+        "totalCount": 0
+      },
+      "openIssues": {
+        "totalCount": 0
+      }
     }
   ]
 }
